@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/tab_main"
+        android:title="Main"
+        app:showAsAction="always"
+        android:icon="@drawable/home_icon_selector"
+        android:orderInCategory="1"/>
+
+    <item android:id="@+id/tab_map"
+        android:title="Map"
+        app:showAsAction="always"
+        android:orderInCategory="2"
+        android:icon="@drawable/map_icon_selector"/>
+</menu>

@@ -40,9 +40,9 @@ android {
     viewBinding {
         enabled = true
     }
-    kapt {
-        generateStubs = true
-    }
+//    kapt {
+//        generateStubs = true
+//    }
 }
 
 dependencies {
@@ -68,12 +68,29 @@ dependencies {
     implementation("com.github.terrakok:cicerone:7.1")
 
     //dagger2
+//    implementation 'com.google.dagger:dagger:2.28.1'
+//    kapt "com.google.dagger:dagger-compiler:2.28.1"
+
     implementation 'com.google.dagger:dagger:2.40'
-    kapt "com.google.dagger:dagger-compiler:2.40"
+    kapt 'com.google.dagger:dagger-compiler:2.40'
+//    kapt "com.google.dagger:dagger-android-processor:2.28.1"
+    //implementation "com.google.dagger:dagger-android:2.40"
+    //implementation "com.google.dagger:dagger-android:support:2.28.1"
 
     //moxy
     implementation "com.github.moxy-community:moxy:2.2.2"
     kapt "com.github.moxy-community:moxy-compiler:2.2.2"
     implementation "com.github.moxy-community:moxy-androidx:2.2.2"
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+    implementation 'com.squareup.okio:okio:1.13.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
 }

@@ -1,6 +1,53 @@
 package com.test.spaceapp.ui.fragments.mainFragment
 
-import moxy.MvpPresenter
 
-class MainPresenter: MvpPresenter<MainView>() {
+import android.annotation.SuppressLint
+import android.util.Log
+import com.test.spaceapp.data.common.repositories.RemoteRoverPhotosDataStoreImpl
+import com.test.spaceapp.domain.models.Photos
+import com.test.spaceapp.domain.models.RoverPhotos
+import io.reactivex.android.schedulers.AndroidSchedulers
+import moxy.MvpPresenter
+import retrofit2.HttpException
+import java.io.IOException
+import javax.inject.Inject
+
+class MainPresenter @Inject constructor(private val remoteRoverPhotosDataStoreImpl: RemoteRoverPhotosDataStoreImpl) :
+    MvpPresenter<MainView>() {
+
+    init {
+        Log.d("RoverPhotos", "getPhotos Main presenter" )
+    }
+
+    override fun attachView(view: MainView?) {
+        super.attachView(view)
+        getPhotos("2021-10-30", 1, "DEMO_KEY")
+       // Log.d("RoverPhotos", "getPhotos Main presenter" + getPhotos("2021-10-30","Front Hazard Avoidance Camera", 1, "DEMO_KEY"))
+    }
+
+    @SuppressLint("CheckResult")
+    fun getPhotos(earthDate: String, page: Int, apiKey: String) {
+        Log.d("RoverPhotos", "getPhotos Main presenter")
+        remoteRoverPhotosDataStoreImpl.getPhotos(earthDate, page, apiKey)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { viewState.showProgress() }
+            .subscribe({ photos -> showPhotos(photos) },
+                { throwable -> showException(throwable) })
+
+    }
+
+    private fun showPhotos(photos: Photos) {
+        Log.d("RoverPhotos", "RoverPhotos + $photos")
+        viewState.showPhotos(photos)
+    }
+
+    private fun showException(throwable: Throwable?) {
+        Log.d("Retrofit", "error = $throwable")
+        val error = throwable as? HttpException
+        try {
+            viewState.showException(errorMessage = error?.message()?:"")
+        } catch (e: IOException) {
+            Log.d("Retrofit", "error = $e")
+        }
+    }
 }

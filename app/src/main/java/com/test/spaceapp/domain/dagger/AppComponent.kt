@@ -1,5 +1,7 @@
 package com.test.spaceapp.domain.dagger
 
+//import com.test.spaceapp.ui.fragments.mainFragment.FragmentMain
+import com.test.spaceapp.domain.dagger.module.ApiModule
 import com.test.spaceapp.domain.dagger.module.LocalNavigationModule
 import com.test.spaceapp.domain.dagger.module.NavigationModule
 import com.test.spaceapp.ui.activity.mainActivity.MainActivity
@@ -18,14 +20,14 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [
     NavigationModule::class,
-    LocalNavigationModule::class]
+    LocalNavigationModule::class, ApiModule::class]
 )
 interface AppComponent {
     fun inject(activity: MainActivity)
 
     fun inject(fragment: FragmentMain)
 
-    fun inject(activity: FragmentMap)
+    fun inject(fragment: FragmentMap)
 
     fun inject(fragment: TabContainerFragment)
 

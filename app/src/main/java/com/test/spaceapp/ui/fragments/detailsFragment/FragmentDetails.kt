@@ -1,6 +1,6 @@
 package com.test.spaceapp.ui.fragments.detailsFragment
 
-import androidx.fragment.app.Fragment
+import moxy.MvpAppCompatFragment
 
-class FragmentDetails: Fragment(), DetailsView  {
+class FragmentDetails: MvpAppCompatFragment(), DetailsView  {
 }

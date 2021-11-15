@@ -6,15 +6,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#346">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cryptosRecyclerView"
-        tools:listitem="@layout/item_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="@dimen/layout_75dp"
+        android:layout_height="@dimen/layout_75dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/white"
+        android:visibility="gone"
+        android:translationZ="@dimen/layout_10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photosRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/layout_0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_photo_list">
 
     </androidx.recyclerview.widget.RecyclerView>
 

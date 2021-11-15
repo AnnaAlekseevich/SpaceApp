@@ -1,33 +1,49 @@
 package com.test.spaceapp.ui.fragments.mainFragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.terrakok.cicerone.Router
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
 import com.test.spaceapp.databinding.MainFragmentListBinding
-import com.test.spaceapp.domain.models.Photos
-import com.test.spaceapp.ui.activity.NavigationKeys
+import com.test.spaceapp.domain.models.RoverPhoto
+import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
+import com.test.spacedemoapp.ui.adapter.ItemDecorationColumns
+import com.test.spacedemoapp.ui.adapter.RoverPhotosListAdapter
+import io.reactivex.Observable
 import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
 class FragmentMain : MvpAppCompatFragment(), MainView {
 
     private lateinit var binding: MainFragmentListBinding
+    private lateinit var photoListAdapter: RoverPhotosListAdapter
 
     @Inject
-    lateinit var router: Router
+    lateinit var repository: RoverPhotosRepository
 
     @Inject
+    lateinit var internetStateObservable: Observable<Boolean>
+
+    @InjectPresenter
     lateinit var presenter: MainPresenter
 
-    val navigationKey: String
-        get() = NavigationKeys.MAIN_TAB_FRAGMENT
+    @ProvidePresenter
+    fun provideDetailsPresenter(): MainPresenter? {
+        return MainPresenter(repository, internetStateObservable)
+    }
 
-    companion object {
-        fun newInstance(bundle: Bundle? = null) = FragmentMain().apply { arguments = bundle }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        SpaceApp.INSTANCE.appComponent.inject(this)
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -35,30 +51,71 @@ class FragmentMain : MvpAppCompatFragment(), MainView {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        SpaceApp.INSTANCE.appComponent.inject(this)
         binding = MainFragmentListBinding.inflate(layoutInflater)
-        Log.d("RoverPhotos", "onCreateView")
-        Log.d("RoverPhotos", "onCreateView")
+
+        setupPhotoList()
+        photoListAdapter.addLoadStateListener { loadStates ->
+            if (loadStates.refresh == LoadState.Loading) {
+                showProgress()
+            } else {
+                hideProgress()
+            }
+        }
         return binding.root
-
     }
 
-    override fun showException(errorMessage: String) {
-        TODO("Not yet implemented")
+    private fun setupPhotoList() {
+        photoListAdapter = RoverPhotosListAdapter() { photo ->
+            openDetailsScreen(photo.urlItemPhoto, photo.roverCamera.fullName, photo.rover.name)
+        }
+        binding.photosRecyclerView.apply {
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            adapter = photoListAdapter
+        }
+        binding.photosRecyclerView.addItemDecoration(
+            ItemDecorationColumns(
+                resources.getInteger(R.integer.photo_list_preview_columns),
+                resources.getDimensionPixelSize(R.dimen.photos_list_spacing),
+                true
+            )
+        )
     }
 
-    override fun showPhotos(photos: Photos) {
-        Log.d("RoverPhotos", "RoverPhotos + $photos")
-        //todo added data to adapter
+    override fun resetPhotosList() {
+        photoListAdapter?.refresh()
+    }
+
+    override fun showInternetConnectionError() {
+        view?.let {
+            Snackbar.make(it, R.string.check_internet_connection, Snackbar.LENGTH_LONG)
+                .setAction(R.string.OK, View.OnClickListener { /*Take Action*/ }).show()
+        }
     }
 
     override fun showProgress() {
-        TODO("Not yet implemented")
+        binding.progressBar.visibility = View.VISIBLE
     }
 
-    override fun onResume() {
-        super.onResume()
-        presenter.getPhotos("2021-10-30", 1, "iqz2OJREH35Wnos1NV50CeEgB2tLWSyfCMSG2vaV")
+    override fun hideProgress() {
+        binding.progressBar.visibility = View.GONE
+    }
+
+    override fun setPagingData(pagingData: PagingData<RoverPhoto>) {
+        photoListAdapter.submitData(lifecycle, pagingData)
+        photoListAdapter.notifyDataSetChanged()
+    }
+
+    override fun openDetailsScreen(
+        photoForDetails: String,
+        cameraName: String,
+        roverName: String
+    ) {
+//        val launchIntent = Intent(context, DetailsActivity::class.java)
+//        with(launchIntent) {
+//            putExtra("photo", photoForDetails)
+//            putExtra("CameraName", cameraName)
+//            putExtra("RoverName", roverName)
+//        }
+//        startActivity(launchIntent)
     }
 }

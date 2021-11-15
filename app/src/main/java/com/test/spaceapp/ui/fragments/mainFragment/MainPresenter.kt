@@ -3,51 +3,62 @@ package com.test.spaceapp.ui.fragments.mainFragment
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.rxjava2.cachedIn
+import androidx.paging.rxjava2.observable
 import com.test.spaceapp.data.common.repositories.RemoteRoverPhotosDataStoreImpl
-import com.test.spaceapp.domain.models.Photos
-import com.test.spaceapp.domain.models.RoverPhotos
+import com.test.spaceapp.domain.models.PhotoResponse
+import com.test.spacedemoapp.data.repositories.GetPhotosRxPagingSource
+import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import moxy.MvpPresenter
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class MainPresenter @Inject constructor(private val remoteRoverPhotosDataStoreImpl: RemoteRoverPhotosDataStoreImpl) :
-    MvpPresenter<MainView>() {
+class MainPresenter @Inject constructor(
+    private val roverPhotosRepository: RoverPhotosRepository,
+    private val internetStateObservable: Observable<Boolean>
+) : MvpPresenter<MainView>() {
 
-    init {
-        Log.d("RoverPhotos", "getPhotos Main presenter" )
+    private var isCurrentInternetState: Boolean = false
+
+    private val presenterScope: CoroutineScope by lazy {
+        val context: CoroutineContext = Dispatchers.Main.plus(SupervisorJob(null))
+        CoroutineScope(context)
     }
 
     override fun attachView(view: MainView?) {
         super.attachView(view)
-        getPhotos("2021-10-30", 1, "DEMO_KEY")
-       // Log.d("RoverPhotos", "getPhotos Main presenter" + getPhotos("2021-10-30","Front Hazard Avoidance Camera", 1, "DEMO_KEY"))
-    }
 
-    @SuppressLint("CheckResult")
-    fun getPhotos(earthDate: String, page: Int, apiKey: String) {
-        Log.d("RoverPhotos", "getPhotos Main presenter")
-        remoteRoverPhotosDataStoreImpl.getPhotos(earthDate, page, apiKey)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { viewState.showProgress() }
-            .subscribe({ photos -> showPhotos(photos) },
-                { throwable -> showException(throwable) })
-
-    }
-
-    private fun showPhotos(photos: Photos) {
-        Log.d("RoverPhotos", "RoverPhotos + $photos")
-        viewState.showPhotos(photos)
-    }
-
-    private fun showException(throwable: Throwable?) {
-        Log.d("Retrofit", "error = $throwable")
-        val error = throwable as? HttpException
-        try {
-            viewState.showException(errorMessage = error?.message()?:"")
-        } catch (e: IOException) {
-            Log.d("Retrofit", "error = $e")
+        internetStateObservable.subscribe { newInternetState ->
+            setInternetAvailable(newInternetState)
         }
+
+        Pager(PagingConfig(pageSize = 25)) {
+            GetPhotosRxPagingSource(roverPhotosRepository)
+        }.observable.observeOn(AndroidSchedulers.mainThread()).cachedIn(presenterScope)
+            .subscribe { pagingData ->  //set it to view
+                viewState.hideProgress()
+                viewState.setPagingData(pagingData)
+            }
+    }
+
+    private fun setInternetAvailable(isAvailable: Boolean) {
+        if (!isAvailable) {
+            viewState.showInternetConnectionError()
+        }
+        if (isCurrentInternetState != isAvailable) {
+            viewState.resetPhotosList()
+        }
+        isCurrentInternetState = isAvailable
+
+
     }
 }

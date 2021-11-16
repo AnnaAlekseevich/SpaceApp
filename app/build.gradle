@@ -98,4 +98,8 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
 
+    //for map
+    implementation 'com.google.android.gms:play-services-maps:18.0.0'
+
+
 }

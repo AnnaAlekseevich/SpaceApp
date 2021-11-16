@@ -7,4 +7,6 @@
     <string name="tab_map">Map</string>
     <string name="check_internet_connection">Please check your internet connection</string>
     <string name="OK">OK</string>
+    <string name="default_notification_channel_id">AIzaSyCrOVXZ2LR759d95E2xwPSChVAqcf93VdY</string>
+    <string name="API_KEY">AIzaSyDu0SYNLFjf4AkgqAuycKdAuPnOEJf8xB0</string>
 </resources>

@@ -1,14 +1,10 @@
 package com.test.spaceapp.ui.fragments.mainFragment
 
 
-import android.annotation.SuppressLint
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.rxjava2.cachedIn
 import androidx.paging.rxjava2.observable
-import com.test.spaceapp.data.common.repositories.RemoteRoverPhotosDataStoreImpl
-import com.test.spaceapp.domain.models.PhotoResponse
 import com.test.spacedemoapp.data.repositories.GetPhotosRxPagingSource
 import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
 import io.reactivex.Observable
@@ -17,8 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import moxy.MvpPresenter
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 

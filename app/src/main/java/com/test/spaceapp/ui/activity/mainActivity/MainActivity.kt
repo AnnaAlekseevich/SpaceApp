@@ -5,6 +5,11 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.github.terrakok.cicerone.Router
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
 import com.test.spaceapp.databinding.ActivityMainBinding
@@ -17,7 +22,7 @@ import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), MainActivityView, RouterProvider {
+class MainActivity : AppCompatActivity(), MainActivityView, RouterProvider, OnMapReadyCallback {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -49,11 +54,21 @@ class MainActivity : AppCompatActivity(), MainActivityView, RouterProvider {
         }
     }
 
+    fun setMapFragment(mapFragment: Fragment){
+        if (mapFragment!= null) {
+            val mapFragment = SupportMapFragment.newInstance()
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_container, mapFragment)
+                .commit()
+        }
+    }
+
     private fun setupNavigationBar() {
         binding.bottomNavigationBar.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.tab_main -> setFragment(FragmentMain()) //envia comandos para o navigator
-                R.id.tab_map -> setFragment(FragmentMap())
+                R.id.tab_map -> setMapFragment(FragmentMap())
             }
             true
         }
@@ -76,6 +91,14 @@ class MainActivity : AppCompatActivity(), MainActivityView, RouterProvider {
         } else {
             presenter.onBackPressed()
         }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        googleMap.addMarker(
+            MarkerOptions()
+                .position(LatLng(0.0, 0.0))
+                .title("Marker")
+        )
     }
 
 }

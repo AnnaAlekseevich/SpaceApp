@@ -1,119 +1,112 @@
 package com.test.spaceapp.ui.fragments.detailsFragment
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.LoadState
-import androidx.paging.PagingData
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
-import com.test.spaceapp.domain.models.RoverPhoto
-import com.test.spaceapp.ui.fragments.mainFragment.MainPresenter
-import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
-import io.reactivex.Observable
+import com.test.spaceapp.databinding.FragmentDetailsBinding
 import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
-import javax.inject.Inject
+import java.io.File
+import java.io.FileOutputStream
 
-class FragmentDetails: MvpAppCompatFragment(), DetailsView  {
-//    private lateinit var binding: Binding FragmentMainBinding
-//    private lateinit var photoListAdapter: RoverPhotosListAdapter
+class FragmentDetails : MvpAppCompatFragment(), DetailsView {
 
-    @Inject
-    lateinit var repository: RoverPhotosRepository
-
-    @Inject
-    lateinit var internetStateObservable: Observable<Boolean>
-
-    @InjectPresenter
-    lateinit var presenter: DetailsPresenter
-
-    @ProvidePresenter
-    fun provideDetailsPresenter(): DetailsPresenter? {
-        return DetailsPresenter(repository, internetStateObservable)
-    }
+    private lateinit var binding: FragmentDetailsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         SpaceApp.INSTANCE.appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        //binding = FragmentMainBinding.inflate(layoutInflater)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentDetailsBinding.inflate(layoutInflater)
+//        val intent= intent
 //
-//        setupPhotoList()
-////        photoListAdapter.addLoadStateListener { loadStates ->
-////            if (loadStates.refresh == LoadState.Loading) {
-////                showProgress()
-////            } else {
-////                hideProgress()
-////            }
-////        }
-////        return binding.root
-//
-//    }
+//        val photoImage: String = intent.getStringExtra("photo").toString()
+//        val roverCameraName: String = intent.getStringExtra("CameraName").toString()
+//        val roverFullName: String = intent.getStringExtra("RoverName").toString()
+        val photoImage = ""
+        binding.btnBack.setOnClickListener { back ->
+            activity?.finish()
+        }
+        binding.btnShare.setOnClickListener { share ->
+            onShareImage()
+        }
 
-    private fun setupPhotoList() {
-//        photoListAdapter = RoverPhotosListAdapter() { photo ->
-//            openDetailsScreen(photo.urlItemPhoto, photo.roverCamera.fullName, photo.rover.name)
-//        }
-//        binding.photosRecyclerView.apply {
-//            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-//            adapter = photoListAdapter
-//        }
-//        binding.photosRecyclerView.addItemDecoration(
-//            ItemDecorationColumns(
-//                resources.getInteger(R.integer.photo_list_preview_columns),
-//                resources.getDimensionPixelSize(R.dimen.photos_list_spacing),
-//                true
-//            )
-//        )
+        showRoverPhoto(photoImage)
+        return binding.root
     }
 
-    override fun resetPhotosList() {
-        //photoListAdapter?.refresh()
-    }
-
-    override fun showInternetConnectionError() {
-        view?.let {
-            Snackbar.make(it, R.string.check_internet_connection, Snackbar.LENGTH_LONG)
-                .setAction(R.string.OK, View.OnClickListener { /*Take Action*/ }).show()
+    override fun showRoverPhoto(pictureUri: String) {
+        pictureUri.toUri().let {
+            Glide
+                .with(binding.roverPhotoDetails.context)
+                .load(it)
+                .into(binding.roverPhotoDetails)
         }
     }
 
-    override fun showProgress() {
-        //binding.progressBar.visibility = View.VISIBLE
+    //for converting String to Uri
+    private fun String.toUri(): Uri = Uri.parse(this)
+
+    private fun onShareImage() {
+        var bitmap: Bitmap = (binding.roverPhotoDetails.drawable as BitmapDrawable).bitmap
+        shareImageToAnotherApp(bitmap)
     }
 
-    override fun hideProgress() {
-        //binding.progressBar.visibility = View.GONE
+    private fun shareImageToAnotherApp(bitmap: Bitmap) {
+        val uri: Uri = getmageToShare(bitmap)!!
+        val intent = Intent(Intent.ACTION_SEND)
+        // putting uri of image to be shared
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        // adding text to share
+        intent.putExtra(Intent.EXTRA_TEXT, "Sharing Image")
+        // Add subject Here
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Subject Here")
+        // setting type to image
+        intent.type = "image/png"
+        // calling startactivity() to share
+        startActivity(Intent.createChooser(intent, "Share Via"))
     }
 
-    override fun setPagingData(pagingData: PagingData<RoverPhoto>) {
-//        photoListAdapter.submitData(lifecycle, pagingData)
-//        photoListAdapter.notifyDataSetChanged()
+    // Retrieving the url to share
+    private fun getmageToShare(bitmap: Bitmap): Uri? {
+        val imagefolder = File(activity?.cacheDir, "images")
+        var uri: Uri? = null
+        try {
+            imagefolder.mkdirs()
+            val file = File(imagefolder, "shared_image.png")
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            uri = context?.let {
+                FileProvider.getUriForFile(
+                    it,
+                    "com.anni.shareimage.fileprovider",
+                    file
+                )
+            }
+        } catch (e: Exception) {
+            view?.let {
+                Snackbar.make(it, "" + e.message, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.OK, View.OnClickListener { /*Take Action*/ }).show()
+            }
+        }
+        return uri
     }
 
-    override fun openDetailsScreen(
-        photoForDetails: String,
-        cameraName: String,
-        roverName: String
-    ) {
-//        val launchIntent = Intent(context, DetailsActivity::class.java)
-//        with(launchIntent) {
-//            putExtra("photo", photoForDetails)
-//            putExtra("CameraName", cameraName)
-//            putExtra("RoverName", roverName)
-//        }
-//        startActivity(launchIntent)
-    }
 }

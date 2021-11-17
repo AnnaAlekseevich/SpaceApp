@@ -5,6 +5,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.rxjava2.cachedIn
 import androidx.paging.rxjava2.observable
+import com.github.terrakok.cicerone.Router
+import com.test.spaceapp.SpaceApp
+import com.test.spaceapp.data.common.Screens.Details
 import com.test.spacedemoapp.data.repositories.GetPhotosRxPagingSource
 import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
 import io.reactivex.Observable
@@ -12,13 +15,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import moxy.InjectViewState
 import moxy.MvpPresenter
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+@InjectViewState
 class MainPresenter @Inject constructor(
     private val roverPhotosRepository: RoverPhotosRepository,
-    private val internetStateObservable: Observable<Boolean>
+    private val internetStateObservable: Observable<Boolean>,
+    private val router: Router
 ) : MvpPresenter<MainView>() {
 
     private var isCurrentInternetState: Boolean = false
@@ -52,7 +58,13 @@ class MainPresenter @Inject constructor(
             viewState.resetPhotosList()
         }
         isCurrentInternetState = isAvailable
+    }
 
+    fun onBackCommandClick() {
+        router.exit()
+    }
 
+    fun onForwardCommandClick() {
+        router.navigateTo(Details())
     }
 }

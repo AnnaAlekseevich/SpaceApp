@@ -10,17 +10,30 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
+import com.github.terrakok.cicerone.Router
 import com.google.android.material.snackbar.Snackbar
 import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
 import com.test.spaceapp.databinding.FragmentDetailsBinding
 import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 import java.io.File
 import java.io.FileOutputStream
+import javax.inject.Inject
 
 class FragmentDetails : MvpAppCompatFragment(), DetailsView {
 
     private lateinit var binding: FragmentDetailsBinding
+
+    @Inject
+    lateinit var router: Router
+
+    @InjectPresenter
+    lateinit var presenter: DetailsPresenter
+
+    @ProvidePresenter
+    fun createDetailsNavigationPresenter() = DetailsPresenter(router)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         SpaceApp.INSTANCE.appComponent.inject(this)
@@ -40,7 +53,8 @@ class FragmentDetails : MvpAppCompatFragment(), DetailsView {
 //        val roverFullName: String = intent.getStringExtra("RoverName").toString()
         val photoImage = ""
         binding.btnBack.setOnClickListener { back ->
-            activity?.finish()
+//            activity?.finish()
+            presenter.onBackPressed()
         }
         binding.btnShare.setOnClickListener { share ->
             onShareImage()

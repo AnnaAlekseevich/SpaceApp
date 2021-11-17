@@ -1,12 +1,16 @@
 package com.test.spaceapp.ui.fragments.mainFragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
 import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
@@ -27,23 +31,28 @@ class FragmentMain : MvpAppCompatFragment(), MainView {
     private lateinit var photoListAdapter: RoverPhotosListAdapter
 
     @Inject
+    lateinit var navigatorHolder: NavigatorHolder
+
+    @Inject
     lateinit var repository: RoverPhotosRepository
 
     @Inject
     lateinit var internetStateObservable: Observable<Boolean>
+
+    @Inject
+    lateinit var router: Router
 
     @InjectPresenter
     lateinit var presenter: MainPresenter
 
     @ProvidePresenter
     fun provideDetailsPresenter(): MainPresenter? {
-        return MainPresenter(repository, internetStateObservable)
+        return MainPresenter(repository, internetStateObservable, router)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         SpaceApp.INSTANCE.appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -110,12 +119,7 @@ class FragmentMain : MvpAppCompatFragment(), MainView {
         cameraName: String,
         roverName: String
     ) {
-//        val launchIntent = Intent(context, DetailsActivity::class.java)
-//        with(launchIntent) {
-//            putExtra("photo", photoForDetails)
-//            putExtra("CameraName", cameraName)
-//            putExtra("RoverName", roverName)
-//        }
-//        startActivity(launchIntent)
+        presenter.onForwardCommandClick()
+        Log.d("OpenFragmentDetails", "OpenFragmentDetails")
     }
 }

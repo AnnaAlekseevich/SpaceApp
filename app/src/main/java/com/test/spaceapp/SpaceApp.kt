@@ -9,19 +9,25 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Build
+import com.github.terrakok.cicerone.Cicerone
+import com.github.terrakok.cicerone.Router
 import com.test.spaceapp.domain.dagger.AppComponent
 import com.test.spaceapp.domain.dagger.DaggerAppComponent
 import com.test.spaceapp.domain.dagger.module.AppModule
 import com.test.spacedemoapp.domain.net.networkconnection.NetWorkConnection
 import io.reactivex.subjects.BehaviorSubject
 
+
 class SpaceApp : Application() {
 
     lateinit var appComponent: AppComponent
+    private var cicerone: Cicerone<Router>? = null
 
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
+
+        initCicerone()
         NetWorkConnection.isInternetAvailable(this)
         internetStateObservable.onNext(NetWorkConnection.isInternetAvailable(this))
         this.appComponent = this.initDagger()
@@ -75,4 +81,8 @@ class SpaceApp : Application() {
     private fun initDagger() = DaggerAppComponent.builder()
         .appModule(AppModule(this, internetStateObservable))
         .build()
+
+    private fun initCicerone() {
+        cicerone = Cicerone.create()
+    }
 }

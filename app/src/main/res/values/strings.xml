@@ -11,4 +11,14 @@
     <string name="API_KEY">AIzaSyDu0SYNLFjf4AkgqAuycKdAuPnOEJf8xB0</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="marker_name">Marker name</string>
+    <string name="longitude">Longitude:</string>
+    <string name="latitude">Latitude:</string>
+    <string name="width">Width:</string>
+    <string name="land">99999999</string>
+    <string name="msg_token_fmt">It is time to explore something news!</string>
+    <string name="msg_subscribed">Message subscribed!</string>
+    <string name="msg_subscribe_failed">Subscribe failed!</string>
+    <string name="default_notification_channel_name">Cloud messaging notifications</string>
+
 </resources>

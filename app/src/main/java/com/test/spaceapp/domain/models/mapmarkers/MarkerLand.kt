@@ -1,6 +1,6 @@
 package com.test.spaceapp.domain.models.mapmarkers
 
-data class Marker(
+data class MarkerLand(
 
     var markerName: String,
 

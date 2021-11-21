@@ -12,6 +12,7 @@ import com.test.spacedemoapp.data.repositories.GetPhotosRxPagingSource
 import com.test.spacedemoapp.data.repositories.RoverPhotosRepository
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,6 +29,7 @@ class MainPresenter @Inject constructor(
 ) : MvpPresenter<MainView>() {
 
     private var isCurrentInternetState: Boolean = false
+    private val compositeDisposablePaging = CompositeDisposable()
 
     private val presenterScope: CoroutineScope by lazy {
         val context: CoroutineContext = Dispatchers.Main.plus(SupervisorJob(null))
@@ -37,17 +39,19 @@ class MainPresenter @Inject constructor(
     override fun attachView(view: MainView?) {
         super.attachView(view)
 
-        internetStateObservable.subscribe { newInternetState ->
+        val internetConnectionState = internetStateObservable.subscribe { newInternetState ->
             setInternetAvailable(newInternetState)
         }
 
-        Pager(PagingConfig(pageSize = 25)) {
+        val pagingData = Pager(PagingConfig(pageSize = 25)) {
             GetPhotosRxPagingSource(roverPhotosRepository)
         }.observable.observeOn(AndroidSchedulers.mainThread()).cachedIn(presenterScope)
             .subscribe { pagingData ->  //set it to view
                 viewState.hideProgress()
                 viewState.setPagingData(pagingData)
             }
+        compositeDisposablePaging.add(internetConnectionState)
+        compositeDisposablePaging.add(pagingData)
     }
 
     private fun setInternetAvailable(isAvailable: Boolean) {
@@ -66,5 +70,11 @@ class MainPresenter @Inject constructor(
 
     fun onForwardCommandClick() {
         router.navigateTo(Details())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        //todo check - on destroy or ondetach (b - global)
+        compositeDisposablePaging.dispose()
     }
 }

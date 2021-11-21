@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    android:id="@+id/clItemMarker">
+
+    <TextView
+        android:id="@+id/marker_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/marker_name"
+        style="@style/TitleMarkerName"
+        android:gravity="left"
+        android:layout_marginTop="@dimen/layout_12dp"
+        android:paddingLeft="@dimen/layout_16dp"
+        android:paddingBottom="@dimen/layout_16dp"/>
+
+    <LinearLayout
+        android:id="@+id/longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/marker_name"
+        android:paddingBottom="@dimen/layout_8dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TitleLongitudeLatitude"
+            android:text="@string/longitude"
+            android:paddingLeft="@dimen/layout_16dp"/>
+        <TextView
+            android:id="@+id/longitude_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TitleLongitudeLatitude"
+            android:text="@string/land"
+            android:paddingLeft="@dimen/layout_10dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/latitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/layout_12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/longitude">
+
+        <TextView
+            style="@style/TitleLongitudeLatitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/layout_16dp"
+            android:text="@string/latitude" />
+
+        <TextView
+            android:id="@+id/latitude_data"
+            style="@style/TitleLongitudeLatitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/layout_10dp"
+            android:text="@string/land" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

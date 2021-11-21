@@ -1,6 +1,5 @@
 package com.test.spaceapp.ui.fragments.mapFragment
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -22,20 +21,21 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.test.spaceapp.R
 import com.test.spaceapp.SpaceApp
 import com.test.spaceapp.databinding.MapFragmentBinding
-import com.test.spaceapp.domain.models.mapmarkers.Marker
+import com.test.spaceapp.domain.models.mapmarkers.MarkerLand
 import com.test.spaceapp.ui.activity.NavigationKeys
+import com.test.spaceapp.ui.fragments.bottomFragment.BottomFragment
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-
 
 class FragmentMap : MvpAppCompatFragment(), MapView, OnMapReadyCallback {
 
     private lateinit var binding: MapFragmentBinding
     private lateinit var gMap: GoogleMap
-    private lateinit var marker: Marker
-    private lateinit var markerList: MutableList<Marker>
+    private lateinit var markerLand: MarkerLand
+    private lateinit var markerLandList: MutableList<MarkerLand>
     private lateinit var location: LatLng
+    private lateinit var markersListAdapter: MarkersListAdapter
 
     @InjectPresenter
     lateinit var presenter: MapPresenter
@@ -62,7 +62,17 @@ class FragmentMap : MvpAppCompatFragment(), MapView, OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View? {
         binding = MapFragmentBinding.inflate(layoutInflater)
+        setupMarkersList()
+        BottomFragment().show(childFragmentManager, "tag")
         return binding.root
+    }
+
+    private fun setupMarkersList() {
+//        markersListAdapter = MarkersListAdapter()
+//        binding. .apply {
+//            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+//            adapter = photoListAdapter
+//        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -122,10 +132,14 @@ class FragmentMap : MvpAppCompatFragment(), MapView, OnMapReadyCallback {
         // add Save and Cancel buttons
         builder.setPositiveButton(resources.getString(R.string.save)) { dialog, which ->
             //todo save markers
-            marker = Marker(markerName = input.toString(), latitude = location.latitude, longitude = location.longitude)
-            markerList = arrayListOf()
-            markerList.add(marker)
-            Log.d("CheckMarker", "marker = $marker")
+            markerLand = MarkerLand(
+                markerName = input.toString(),
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+            markerLandList = arrayListOf()
+            markerLandList.add(markerLand)
+            Log.d("CheckMarker", "marker = $markerLand")
         }
         builder.setNegativeButton(resources.getString(R.string.cancel)) { dialog, which -> gMap.clear() }
         // create and show the alert dialog
